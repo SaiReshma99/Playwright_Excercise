@@ -20,37 +20,27 @@ selenium-framework
 └── README.md
 ```
 
-## Setup Instructions
-1. **Clone the Repository**: 
-   Clone the repository to your local machine using:
-   ```
-   git clone <repository-url>
-   ```
+## Requirements
+- Java 11 or newer
+- Maven 3.6 or newer
+- Google Chrome
 
-2. **Maven Installation**: 
-   Ensure that Maven is installed on your machine. You can download it from [Maven's official website](https://maven.apache.org/download.cgi).
+Selenium Manager downloads and configures the matching ChromeDriver on the first test run.
 
-3. **Project Dependencies**: 
-   Navigate to the project directory and run the following command to install the required dependencies:
-   ```
-   mvn clean install
-   ```
+## Run Tests
 
-4. **IDE Setup**: 
-   Open the project in your preferred IDE (e.g., IntelliJ IDEA, Eclipse).
+Run the invalid-credentials test with:
 
-## Running Tests
-To execute the tests, you can use the following command:
-```
+```text
 mvn test
 ```
-Alternatively, you can run the tests directly from your IDE using the TestNG runner.
 
-## TestNG Configuration
-The `testng.xml` file defines the test suite and specifies the test classes to be executed. You can modify this file to include additional test classes or parameters as needed.
+The valid-credentials test is skipped unless `SALESFORCE_USERNAME` and `SALESFORCE_PASSWORD` are set in the environment. Never commit real account credentials.
 
-## Contribution
-Feel free to contribute to this project by submitting issues or pull requests. For any questions or suggestions, please contact the project maintainer.
+To run Chrome with a visible window, set the `browser.headless` system property to `false`:
 
-## License
-This project is licensed under the MIT License. See the LICENSE file for more details.
+```text
+mvn test -Dbrowser.headless=false
+```
+
+The TestNG suite is configured in `testng.xml`.

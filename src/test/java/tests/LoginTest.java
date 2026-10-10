@@ -1,30 +1,71 @@
-public class LoginTest {
-    WebDriver driver;
-    LoginPage loginPage;
+package tests;
 
-    @BeforeTest
-    public void setUp() {
-        System.setProperty("webdriver.chrome.driver", "path/to/chromedriver");
-        driver = new ChromeDriver();
-        driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
-        driver.get("https://login.salesforce.com/?locale=in");
+import java.lang.reflect.Method;
+import java.time.Duration;
+
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
+import org.testng.Assert;
+import org.testng.SkipException;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
+
+import pages.LoginPage;
+
+public class LoginTest {
+    private static final String LOGIN_URL = "https://login.salesforce.com/?locale=in";
+
+    private WebDriver driver;
+    private LoginPage loginPage;
+
+    @BeforeMethod
+    public void setUp(Method testMethod) {
+        if ("validCredentialsShouldSignIn".equals(testMethod.getName())
+                && (isBlank(System.getenv("SALESFORCE_USERNAME"))
+                        || isBlank(System.getenv("SALESFORCE_PASSWORD")))) {
+            throw new SkipException(
+                    "Set SALESFORCE_USERNAME and SALESFORCE_PASSWORD to run the valid login test.");
+        }
+
+        ChromeOptions options = new ChromeOptions();
+        options.addArguments("--disable-dev-shm-usage");
+        if (Boolean.parseBoolean(System.getProperty("browser.headless", "true"))) {
+            options.addArguments("--headless=new");
+        } else {
+            options.addArguments("--start-maximized");
+        }
+
+        driver = new ChromeDriver(options);
+        driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(45));
+        driver.get(LOGIN_URL);
         loginPage = new LoginPage(driver);
     }
 
-    @Test(priority = 1)
-    public void validLoginTest() {
-        loginPage.doLogin("validEmail@example.com", "validPassword");
-        // Add assertions to verify successful login
+    @Test
+    public void validCredentialsShouldSignIn() {
+        loginPage.login(System.getenv("SALESFORCE_USERNAME"), System.getenv("SALESFORCE_PASSWORD"));
+        Assert.assertTrue(loginPage.hasLeftLoginPage(),
+                "Expected valid credentials to navigate away from the Salesforce login page.");
     }
 
-    @Test(priority = 2)
-    public void invalidLoginTest() {
-        loginPage.doLogin("invalidEmail@example.com", "invalidPassword");
-        // Add assertions to verify error message is displayed
+    @Test
+    public void invalidCredentialsShouldShowError() {
+        loginPage.login("invalid.user@example.invalid", "invalid-password");
+        Assert.assertFalse(loginPage.getErrorMessage().isEmpty(),
+                "Expected Salesforce to display an error for invalid credentials.");
     }
 
-    @AfterTest
+    @AfterMethod(alwaysRun = true)
     public void tearDown() {
-        driver.quit();
+        if (driver != null) {
+            driver.quit();
+            driver = null;
+        }
+    }
+
+    private boolean isBlank(String value) {
+        return value == null || value.trim().isEmpty();
     }
 }
