@@ -6,19 +6,22 @@ This project is an automation framework built using Selenium WebDriver, Java, Ma
 ## Project Structure
 ```
 selenium-framework
-├── src
-│   ├── main
-│   │   └── java
-│   │       └── pages
-│   │           └── LoginPage.java
-│   └── test
-│       └── java
-│           └── tests
-│               └── LoginTest.java
+├── .gitignore
 ├── pom.xml
+├── README.md
 ├── testng.xml
-└── README.md
+├── src
+│   ├── main/java/pages/LoginPage.java
+│   └── test/java/tests/LoginTest.java
 ```
+
+### File and Folder Details
+- `.gitignore` excludes generated Maven build output in `target/`.
+- `pom.xml` defines the Java 11 build, Selenium and TestNG dependencies, and Maven test configuration.
+- `testng.xml` selects the `tests.LoginTest` class for the TestNG suite.
+- `src/main/java/pages/LoginPage.java` implements the Salesforce login page using the Page Object Model.
+- `src/test/java/tests/LoginTest.java` contains the valid- and invalid-credentials browser tests and Chrome setup/cleanup.
+- `README.md` documents the project, prerequisites, and commands.
 
 ## Requirements
 - Java 11 or newer
